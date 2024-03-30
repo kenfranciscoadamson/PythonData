@@ -54,5 +54,5 @@ def convert_excel_to_dat_zip(excel_file_path):
 
 # Example usage
 if __name__ == "__main__":
-    excel_file_path = r"C:\Python\HDL Basis Worker.xlsx"
+    excel_file_path = r"Your excel file path.xlsx"
     convert_excel_to_dat_zip(excel_file_path)

@@ -26,7 +26,7 @@ def convert_excel_to_dat_zip(excel_file_path):
             df = xls.parse(sheet_name)
             
             # Convert DataFrame to pipe-delimited string
-            dat_content = df.to_csv(index=False, sep='|', na_rep='')  # Removed terminator to avoid Type chuchu error
+            dat_content = df.to_csv(index=False, sep='|', na_rep='')  # Removed terminator to avoid errors
             
             # Write sheet content to .dat file
             dat_file.write(dat_content)

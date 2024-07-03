@@ -1,3 +1,5 @@
+# for Plot1
+
 import pandas as pd
 import plotly.express as px
 import requests
@@ -67,8 +69,9 @@ def main():
     
     results_df = pd.DataFrame(all_results)
     
-    # Pivot the DataFrame to get the desired shape
-    pivot_df = results_df.pivot(index='driverCode', columns='race', values='points')
+    # Ensure all expected races are included as columns
+    expected_races = [race['raceName'] for race in races]
+    pivot_df = results_df.pivot(index='driverCode', columns='race', values='points').reindex(columns=expected_races)
     
     # Add a column for total points
     pivot_df['Total Points'] = pivot_df.sum(axis=1)
@@ -76,33 +79,43 @@ def main():
     # Sort the drivers by their total points
     pivot_df = pivot_df.sort_values(by='Total Points', ascending=False)
     
-    # Sort the columns based on the round number
-    race_order = results_df[['race', 'round']].drop_duplicates().set_index('race').sort_values('round').index.tolist()
-    race_order.append('Total Points')  # Ensure 'Total Points' is the last column
-    pivot_df = pivot_df[race_order]
-    
-    # Plot the heatmap using Plotly
-    fig = px.imshow(
+    # Plot the heatmap with only columns having data
+    fig1 = px.imshow(
+        pivot_df.dropna(axis=1, how='all'),
+        text_auto=True,
+        aspect='auto',
+        color_continuous_scale=[[0, 'rgb(204, 229, 255)'], [0.25, 'rgb(153, 204, 255)'], [0.5, 'rgb(102, 178, 255)'], [0.75, 'rgb(51, 153, 255)'], [1, 'rgb(0, 128, 255)']],
+        labels={'x': 'Race', 'y': 'Driver', 'color': 'Points'}
+    )
+    fig1.update_xaxes(title_text='')
+    fig1.update_yaxes(title_text='')
+    fig1.update_yaxes(tickmode='linear')
+    fig1.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGrey', showline=False, tickson='boundaries')
+    fig1.update_xaxes(showgrid=False, showline=False)
+    fig1.update_layout(plot_bgcolor='rgba(0,0,0,0)')
+    fig1.update_layout(coloraxis_showscale=False)
+    fig1.update_layout(xaxis=dict(side='top'))
+    fig1.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+    fig1.show()
+
+    # Plot the heatmap with all columns
+    fig2 = px.imshow(
         pivot_df,
         text_auto=True,
-        aspect='auto',  # Automatically adjust the aspect ratio
-        color_continuous_scale=[[0, 'rgb(255, 204, 204)'],  # Light red
-                                [0.25, 'rgb(255, 102, 102)'],
-                                [0.5, 'rgb(255, 51, 51)'],
-                                [0.75, 'rgb(204, 0, 0)'],
-                                [1, 'rgb(153, 0, 0)']],
-        labels={'x': 'Race', 'y': 'Driver', 'color': 'Points'}  # Change hover texts
+        aspect='auto',
+        color_continuous_scale=[[0, 'rgb(204, 229, 255)'], [0.25, 'rgb(153, 204, 255)'], [0.5, 'rgb(102, 178, 255)'], [0.75, 'rgb(51, 153, 255)'], [1, 'rgb(0, 128, 255)']],
+        labels={'x': 'Race', 'y': 'Driver', 'color': 'Points'}
     )
-    fig.update_xaxes(title_text='')  # Remove axis titles
-    fig.update_yaxes(title_text='')
-    fig.update_yaxes(tickmode='linear')  # Show all ticks, i.e. driver names
-    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGrey', showline=False, tickson='boundaries')  # Show horizontal grid only
-    fig.update_xaxes(showgrid=False, showline=False)  # And remove vertical grid
-    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)')  # White background
-    fig.update_layout(coloraxis_showscale=False)  # Remove legend
-    fig.update_layout(xaxis=dict(side='top'))  # x-axis on top
-    fig.update_layout(margin=dict(l=0, r=0, b=0, t=0))  # Remove border margins
-    fig.show()
+    fig2.update_xaxes(title_text='')
+    fig2.update_yaxes(title_text='')
+    fig2.update_yaxes(tickmode='linear')
+    fig2.update_yaxes(showgrid=True, gridwidth=1, gridcolor='LightGrey', showline=False, tickson='boundaries')
+    fig2.update_xaxes(showgrid=False, showline=False)
+    fig2.update_layout(plot_bgcolor='rgba(0,0,0,0)')
+    fig2.update_layout(coloraxis_showscale=False)
+    fig2.update_layout(xaxis=dict(side='top'))
+    fig2.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+    fig2.show()
 
 if __name__ == "__main__":
     main()
